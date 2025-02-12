@@ -1,5 +1,6 @@
 from django.shortcuts import render
-from .forms import RestaurantForm
+
+from .forms import RatingForm, RestaurantForm
 
 
 # Create your views here.
