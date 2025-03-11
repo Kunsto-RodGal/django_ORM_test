@@ -5,7 +5,7 @@ from django.utils import timezone
 
 from core.forms import ProductOrderForm
 
-from .models import Restaurant, Sale
+from .models import Product, Restaurant, Sale
 
 
 # Create your views here.
@@ -30,6 +30,9 @@ def order_product(request):
         if form.is_valid():
 
             with transaction.atomic():
+                product = Product.objects.select_for_update().get(
+                    id=form.cleaned_data['product'].pk
+                )
                 order = form.save()
                 order.product.number_in_stock -= order.number_of_items
                 order.product.save()

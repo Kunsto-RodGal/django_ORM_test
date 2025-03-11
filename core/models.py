@@ -88,3 +88,7 @@ class Order(models.Model):
 
     def __str__(self):
         return f"{self.number_of_items} x {self.product.name}"
+
+
+class DummyModel(models.Model):
+    name = models.CharField(max_length=128)
