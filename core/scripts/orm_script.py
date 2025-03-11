@@ -8,11 +8,20 @@ from django.db import connection, transaction
 from django.db.models import F, Q
 from django.utils import timezone
 
-from core.models import Product, Rating, Restaurant, Sale, Staff, StaffRestaurant
+from core.models import (
+    Comment,
+    Product,
+    Rating,
+    Restaurant,
+    Sale,
+    Staff,
+    StaffRestaurant,
+)
 
 
 def run():
     # enter code below
 
-    content_types = ContentType.objects.all()
-    print(content_types)
+    comments = Comment.objects.all()
+    for comment in comments:
+        print(comment.content_object)
