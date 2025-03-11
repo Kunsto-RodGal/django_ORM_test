@@ -1,16 +1,23 @@
 from django import forms
-from django.core.validators import MaxValueValidator, MinValueValidator
 
-from core.models import Rating, Restaurant
+from core.models import Order
 
 
-class RestaurantForm(forms.ModelForm):
+class ProductStockException(Exception):
+    pass
+
+
+class ProductOrderForm(forms.ModelForm):
     class Meta:
-        model = Restaurant
-        fields = ('name', 'restaurant_type')
+        model = Order
+        fields = ['product', 'number_of_items']
 
+    def save(self, commit=True):
+        order = super().save(commit=False)
+        if order.product.number_in_stock < order.number_of_items:
+            raise ProductStockException(f"Not enough items in stock for product: {order.product}")
 
-class RatingForm(forms.ModelForm):
-    class Meta:
-        model = Rating
-        fields = ('restaurant', 'user', 'rating',)
+        if commit:
+            order.save()
+
+        return order
