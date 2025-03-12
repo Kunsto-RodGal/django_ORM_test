@@ -4,6 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.db.models import Q
 from django.db.models.functions import Lower
 
 
@@ -22,7 +23,10 @@ class Restaurant(models.Model):
         FASTFOOD = 'FF', 'Fast Food'
         OTHER = 'OT', 'Other'
 
-    name = models.CharField(max_length=100, validators=[validate_restaurant_name_begins_with_a])
+    name = models.CharField(max_length=100,
+                            validators=[validate_restaurant_name_begins_with_a],
+                            unique=True
+                            )
     website = models.URLField(default='')
     date_opened = models.DateField()
     latitude = models.FloatField(validators=[MinValueValidator(-90), MaxValueValidator(90)])
@@ -34,6 +38,22 @@ class Restaurant(models.Model):
 
     class Meta:
         ordering = [Lower('name'), 'date_opened']
+        constraints = [
+            models.CheckConstraint(
+                name="valid_latitude",
+                check=Q(latitude__gte=-90, latitude__lte=90),
+                violation_error_message="Invalid Latitude"
+            ),
+            models.CheckConstraint(
+                name="valid_longitude",
+                check=Q(longitude__gte=-90, longitude__lte=90),
+                violation_error_message="Invalid longitude"
+            ),
+            models.UniqueConstraint(
+                Lower('name'),
+                name='unique_name_constraint',
+            )
+        ]
 
     def __str__(self):
         return self.name
@@ -67,6 +87,20 @@ class Rating(models.Model):
 
     def __str__(self):
         return f"Rating: {self.rating}"
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                name='rating_value_valid',
+                check=Q(rating__gte=1, rating__lte=5),
+                violation_error_message="Rating invalid: must fall between 1 and 5."
+            ),
+            # Here is the method for constrains two fields and make them unique
+            # models.UniqueConstraint(
+            #     fields=['user', 'restaurant'],
+            #     name='unique_rating_constraint'
+            # )
+        ]
 
 
 class Sale(models.Model):
