@@ -1,6 +1,6 @@
 from django.db import transaction
 from django.db.models import Prefetch, Sum
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
 from core.forms import ProductOrderForm
@@ -45,3 +45,8 @@ def order_product(request):
     form = ProductOrderForm()
     context = {'form': form}
     return render(request, 'order.html', context)
+
+
+def restaurant_detail(request, pk):
+    restaurant = get_object_or_404(Restaurant, pk=pk)
+    return render(request, 'restaurant_detail.html', {'restaurant': restaurant})

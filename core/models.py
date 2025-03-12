@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
@@ -6,6 +8,8 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Q
 from django.db.models.functions import Lower
+from django.urls import reverse
+from django.utils import timezone
 
 
 def validate_restaurant_name_begins_with_a(value):
@@ -39,6 +43,17 @@ class Restaurant(models.Model):
     @property
     def restaurant_name(self):
         return self.nickname or self.name
+
+    @property
+    def was_opened_this_year(self) -> bool:
+        current_year = timezone.now().year
+        return self.date_opened.year == current_year
+
+    def is_opened_after(self, date: date) -> bool:
+        return self.date_opened > date
+
+    def get_absolute_url(self):
+        return reverse('restaurant-detail', kwargs={'pk': self.pk})
 
     class Meta:
         ordering = [Lower('name'), 'date_opened']
