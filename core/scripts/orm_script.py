@@ -10,18 +10,21 @@ from django.utils import timezone
 
 from core.models import (
     Comment,
+    InprogressTask,
     Product,
     Rating,
     Restaurant,
     Sale,
     Staff,
     StaffRestaurant,
+    Task,
+    TaskStatus,
 )
 
 
 def run():
     # enter code below
 
-    comments = Comment.objects.all()
-    for comment in comments:
-        print(comment.content_object)
+    # in_progress = Task.objects.filter(status=TaskStatus.IN_PROGRESS)
+    in_progress = InprogressTask.objects.all()
+    print(in_progress)

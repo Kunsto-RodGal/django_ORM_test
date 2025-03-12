@@ -36,6 +36,10 @@ class Restaurant(models.Model):
     nickname = models.CharField(max_length=200, null=True, blank=True)
     comments = GenericRelation("Comment", related_query_name='restaurant')
 
+    @property
+    def restaurant_name(self):
+        return self.nickname or self.name
+
     class Meta:
         ordering = [Lower('name'), 'date_opened']
         constraints = [
@@ -133,3 +137,34 @@ class Comment(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveSmallIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
+
+
+class TaskStatus(models.IntegerChoices):
+    TODO = 1
+    IN_PROGRESS = 2
+    COMPLETED = 3
+
+
+class Task(models.Model):
+    name = models.CharField(max_length=100)
+    ceated_at = models.DateTimeField(auto_now_add=True)
+    status = models.IntegerField(choices=TaskStatus.choices)
+
+    def __str__(self):
+        return self.name
+
+
+class InprogressTask(Task):
+    class Meta:
+        proxy = True
+
+    class Manager(models.Manager):
+        def get_queryset(self) -> models.QuerySet:
+            return super().get_queryset().filter(status=TaskStatus.IN_PROGRESS)
+
+    def save(self, *args, **kwargs):
+        if self._state.adding:
+            self.status = TaskStatus.IN_PROGRESS
+        super().save(*args, **kwargs)
+
+    objects = Manager()

@@ -1,7 +1,7 @@
 from django.contrib import admin
-
-from core.models import Comment, Order, Product, Rating, Restaurant, Sale
 from django.contrib.contenttypes.admin import GenericTabularInline
+
+from core.models import Comment, Order, Product, Rating, Restaurant, Sale, Task
 
 # Register your models here.
 
@@ -35,3 +35,4 @@ admin.site.register(Rating, RatingAdmin)
 admin.site.register(Product)
 admin.site.register(Order)
 admin.site.register(Comment, CommentAdmin)
+admin.site.register(Task)
