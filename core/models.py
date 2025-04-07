@@ -6,7 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import Q
+from django.db.models import Case, Q, Value, When
 from django.db.models.functions import Lower
 from django.urls import reverse
 from django.utils import timezone
@@ -129,6 +129,22 @@ class Sale(models.Model):
     expenditure = models.DecimalField(max_digits=8, decimal_places=2)
     datetime = models.DateTimeField()
 
+    profit = models.GeneratedField(
+        expression=models.F('income') - models.F('expenditure'),
+        output_field=models.DecimalField(max_digits=8, decimal_places=2),
+        db_persist=True
+    )
+
+    suggested_tip = models.GeneratedField(
+        expression=Case(
+            When(income__gte=10, then=models.F('income') * 0.2),
+            default=Value(0),
+            output_field=models.DecimalField(max_digits=8, decimal_places=2)
+        ),
+        output_field=models.DecimalField(max_digits=8, decimal_places=2),
+        db_persist=True
+    )
+
 
 class Product(models.Model):
     name = models.CharField(max_length=100)
@@ -183,3 +199,12 @@ class InprogressTask(Task):
         super().save(*args, **kwargs)
 
     objects = Manager()
+
+
+class Event(models.Model):
+    name = models.CharField(max_length=100)
+    start_date = models.DateField()
+    end_date = models.DateField()
+
+    def __str__(self):
+        return self.name

@@ -10,6 +10,7 @@ from django.utils import timezone
 
 from core.models import (
     Comment,
+    Event,
     InprogressTask,
     Product,
     Rating,
@@ -25,6 +26,11 @@ from core.models import (
 def run():
     # enter code below
 
-    # in_progress = Task.objects.filter(status=TaskStatus.IN_PROGRESS)
-    in_progress = InprogressTask.objects.all()
-    print(in_progress)
+    for i in range(1, 6):
+        Event.objects.create(
+            name=f"Event {i}",
+            start_date=timezone.now() - timezone.timedelta(days=i),
+            end_date=timezone.now()
+        )
+
+    print(Event.objects.count())
